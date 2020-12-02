@@ -1,0 +1,119 @@
+<%- include('_layout/head', {'title': 'Home'}); -%>
+
+    <%- include('_layout/header', {'title': 'Home'}); -%>
+
+        <section class="masthead" id="home">
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-12 text-center">
+                        <h1 class="font-weight-bold text-white py-2" style="background-color: black;">The GLS WS Tester &#128127</h1>
+                        <p class="lead">La odierai pure tu.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page Content -->
+        <section class="py-5" id="disclaimer">
+            <div class="container py-4">
+                <h2 class="font-weight-bold">Disclaimer</h2>
+                <p>I test delle chiamate vengono eseguite usando le credenziali di accesso di GLS Alessandria
+                </p>
+            </div>
+        </section>
+
+        <section class="py-5" id="addparcel">
+            <div class="container py-4">
+                <h2 class="font-weight-bold">AddParcel</h2>
+                <p>Tutti gli indirizzi che verranno inseriti saranno controllati tramite il servizio GLS CheckAddress,<br> per attivare il servizio è necessario cliccare il bottone <button class="btn btn-success btn-sm" type="button">Verifica</button></p>
+                <form method="post" action="#" id="addparcel-form">
+                    <input class="form-control mb-2 border-danger" type="text" name="ragioneSociale" id="ragioneSociale" placeholder="Ragione Sociale" required>
+                    <input class="form-control mb-2 border-danger" type="text" name="localita" id="localita" placeholder="Località" required>
+                    <input class="form-control mb-2 border-danger" type="number" name="postal-code" id="cap" maxlength="5" placeholder="CAP" required>
+                    <select class="form-control mb-2 border-danger" type="text" name="provincia" id="provincia" required>
+                        <option disabled selected>Provincia</option>
+                        <% provincia.forEach(element => { %>
+                            <option value="<%- element['Sigla'] %>"><%- element['Nome'] %></option>
+                        <% }) %>
+                    </select>
+                    <div class="input-group mb-3 mb-2">
+                        <input class="form-control border-danger" type="text" name="street-address" id="indirizzo" placeholder="Indirizzo" required>
+                        <input type="text" class="form-control border-danger" name="street-address" id="civico" placeholder="Numero Civico" required>
+                    </div>
+
+
+                    <input class="form-control mb-2 border-danger" type="number" name="colli" id="colli" min="1" placeholder="Colli" required>
+                    <input class="form-control mb-2 border-danger" type="number" name="peso" id="peso" min="1" max="3000" placeholder="Peso" required>
+                    <input class="form-control mb-2 border-danger" type="text" name="bda" id="bda" placeholder="BDA">
+                    <input class="form-control mb-2" type="number" name="contrassegno" id="contrassegno" min="1" placeholder="&#8364ontrassegno" oninput="isContrassegno()">
+                    <div class="form-group" style="display: none;" id="modalitaincasso-div">
+                        <select id="modalitaincasso" class="form-control" name="modalitaincasso">
+                            <option disabled selected>Modalità di incasso</option>
+                            <option value="CONT">Contante</option>
+                            <option value="AC">Assegno Circolare</option>
+                            <option value="AB">Assegno Bancario</option>
+                            <option value="AP">Assegno Postale</option>
+                            <option value="ASS">Assegno Postale/Bancario/Circolare</option>
+                            <option value="ABP">Assegno Postale/Bancario</option>
+                            <option value="ASR">Assegno come rilasciato</option>
+                            <option value="ARM">Assegno come rilasciato int. Mittente</option>
+                            <option value="ABC">Assegno Bancario/Circolare</option>
+                            <option value="ASRP">Assegno come rilasciato - no Postale</option>
+                            <option value="AMRP">Assegno come rilasciato int. Mittente - no Postale</option>
+                        </select>
+                    </div>
+                    <input class="form-control mb-2" type="text" maxlength="1" name="tipoporto" id="tipoporto" min="1" placeholder="Tipo Porto">
+                    <input class="form-control mb-2" type="text" name="notespedizioni" id="notespedizioni" placeholder="Note">
+                    <input class="form-control mb-2" type="text" name="noteaggiuntive" id="noteaggiuntive" placeholder="Note Aggiuntive">
+                    <input class="form-control mb-2" type="text" name="assicurazione" id="assicurazione" placeholder="Assicurazione in &#8364">
+                    <button class="btn btn-success btn-sm float-left" style="pointer-events: none;display: none;" type="button" id="esitoBtn">Esito</button>
+                    <button class="btn btn-success btn-sm float-right" type="button" onclick="checkAddress()">Verifica</button>
+                    <button class="btn btn-success btn-sm float-right mr-2" type="button" onclick="addParcel()">Crea</button>
+                </form>
+                <div class="container mt-5 d-flex justify-content-between" id="addparcelCodeDiv" style="display: none;">
+                    <div class="row d-flex justify-content-between">
+                        <div class="col d-flex flex-column">
+                            <h3 id="addParcelxmltitle" style="display: none;">AddParcel XML Send</h3>
+                            <code><pre lang="xml" id="addparcelCode" style="display: none;"></pre></code>
+                        </div>
+                        <div class="col d-flex flex-column">
+                            <h3 id="addParcelxmlreturntitle" style="display: none;">AddParcel XML Return</h3>
+                            <code><pre lang="xml" id="addparcelreturnCode" style="display: none;"></pre></code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5" id="listsped">
+            <div class="container py-4">
+                <h2 class="font-weight-bold">ListSped</h2>
+                <p>Questo metodo cerca tutte le spedizioni registrate negli ultimi 4 mesi e ci consegna i relativi dettagli,<br> per attivare il servizio è necessario cliccare il bottone <button class="btn btn-success btn-sm" type="button">Aggiorna</button></p>
+                <div class="list-group mb-2 border rounded" id="listaspedizioni" style="display: none;">
+                    <p class="list-group-item active mb-1">Lista Spedizioni</p>
+                </div>
+                <button class="btn btn-success btn-sm float-right" type="button" onclick="listSped()">Aggiorna</button>
+            </div>
+        </section>
+
+        <section class="py-5" id="getpdf">
+            <div class="container py-4"></div>
+        </section>
+
+        <section class="py-5" id="getzpl">
+            <div class="container py-4"></div>
+        </section>
+
+        <section class="py-5" id="closeworkday">
+            <div class="container py-4"></div>
+        </section>
+
+        <script>
+            function isContrassegno() {
+                if (document.getElementById('contrassegno').value > 0)
+                    document.getElementById('modalitaincasso-div').style.display = 'flex';
+                else
+                    document.getElementById('modalitaincasso-div').style.display = 'none';
+            }
+        </script>
+        <%- include('_layout/footer'); -%>
